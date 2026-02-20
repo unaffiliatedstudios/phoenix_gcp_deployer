@@ -168,59 +168,50 @@ defmodule PhoenixGcpDeployerWeb.DeployLive.Index do
 
         <!-- Step Content -->
         <div class="bg-white/5 backdrop-blur rounded-2xl border border-white/10 p-8 mt-6">
-          <%= case @step do %>
-            <% :repo -> %>
-              <.repo_step
-                github_url={@github_url}
-                analyzing={@analyzing}
-                analysis_error={@analysis_error}
-              />
-            <% :env -> %>
-              <.env_step config={@config} analysis_result={@analysis_result} />
-            <% :database -> %>
-              <.database_step config={@config} />
-            <% :compute -> %>
-              <.compute_step config={@config} />
-            <% :security -> %>
-              <.security_step config={@config} />
-            <% :review -> %>
-              <.review_step
-                config={@config}
-                analysis_result={@analysis_result}
-                cost_estimate={@cost_estimate}
-                security_report={@security_report}
-                generated_files={@generated_files}
-                generating={@generating}
-              />
-          <% end %>
+          <.repo_step
+            :if={@step == :repo}
+            github_url={@github_url}
+            analyzing={@analyzing}
+            analysis_error={@analysis_error}
+          />
+          <.env_step :if={@step == :env} config={@config} analysis_result={@analysis_result} />
+          <.database_step :if={@step == :database} config={@config} />
+          <.compute_step :if={@step == :compute} config={@config} />
+          <.security_step :if={@step == :security} config={@config} />
+          <.review_step
+            :if={@step == :review}
+            config={@config}
+            analysis_result={@analysis_result}
+            cost_estimate={@cost_estimate}
+            security_report={@security_report}
+            generated_files={@generated_files}
+            generating={@generating}
+          />
         </div>
 
         <!-- Navigation -->
-        <%= if @step != :repo do %>
-          <div class="flex justify-between mt-6">
-            <button
-              phx-click="prev_step"
-              class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium"
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </button>
+        <div :if={@step != :repo} class="flex justify-between mt-6">
+          <button
+            phx-click="prev_step"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
 
-            <%= if @step != :review do %>
-              <button
-                phx-click="next_step"
-                class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-pink-600 text-white hover:shadow-lg hover:shadow-orange-500/25 transition-all text-sm font-medium"
-              >
-                Next
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            <% end %>
-          </div>
-        <% end %>
+          <button
+            :if={@step != :review}
+            phx-click="next_step"
+            class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-pink-600 text-white hover:shadow-lg hover:shadow-orange-500/25 transition-all text-sm font-medium"
+          >
+            Next
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
     """
@@ -244,39 +235,35 @@ defmodule PhoenixGcpDeployerWeb.DeployLive.Index do
     ~H"""
     <div class="flex items-center justify-between relative">
       <div class="absolute left-0 right-0 top-4 h-0.5 bg-white/10 -z-10"></div>
-      <%= for {{step, label}, idx} <- Enum.with_index(@steps) do %>
-        <button
-          phx-click="goto_step"
-          phx-value-step={step}
-          class={[
-            "flex flex-col items-center gap-1.5 relative z-10 group",
-            if(idx <= @current_idx, do: "cursor-pointer", else: "cursor-default")
-          ]}
-        >
-          <div class={[
-            "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all",
-            cond do
-              step == @step -> "bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/30"
-              idx < @current_idx -> "bg-green-500/20 border-green-500 text-green-400"
-              true -> "bg-white/5 border-white/20 text-slate-500"
-            end
-          ]}>
-            <%= if idx < @current_idx do %>
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-            <% else %>
-              <%= idx + 1 %>
-            <% end %>
-          </div>
-          <span class={[
-            "text-xs hidden sm:block transition-colors",
-            if(step == @step, do: "text-white font-medium", else: "text-slate-500")
-          ]}>
-            <%= label %>
-          </span>
-        </button>
-      <% end %>
+      <button
+        :for={{{step, label}, idx} <- Enum.with_index(@steps)}
+        phx-click="goto_step"
+        phx-value-step={step}
+        class={[
+          "flex flex-col items-center gap-1.5 relative z-10 group",
+          if(idx <= @current_idx, do: "cursor-pointer", else: "cursor-default")
+        ]}
+      >
+        <div class={[
+          "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all",
+          cond do
+            step == @step -> "bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/30"
+            idx < @current_idx -> "bg-green-500/20 border-green-500 text-green-400"
+            true -> "bg-white/5 border-white/20 text-slate-500"
+          end
+        ]}>
+          <svg :if={idx < @current_idx} class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span :if={idx >= @current_idx}><%= idx + 1 %></span>
+        </div>
+        <span class={[
+          "text-xs hidden sm:block transition-colors",
+          if(step == @step, do: "text-white font-medium", else: "text-slate-500")
+        ]}>
+          <%= label %>
+        </span>
+      </button>
     </div>
     """
   end
@@ -311,27 +298,22 @@ defmodule PhoenixGcpDeployerWeb.DeployLive.Index do
             disabled={@analyzing}
             class="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-pink-600 text-white font-medium text-sm hover:shadow-lg hover:shadow-orange-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            <%= if @analyzing do %>
-              <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Analyzing...
-            <% else %>
-              Analyze
-            <% end %>
+            <svg :if={@analyzing} class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span :if={@analyzing}>Analyzing...</span>
+            <span :if={!@analyzing}>Analyze</span>
           </button>
         </div>
       </form>
 
-      <%= if @analysis_error do %>
-        <div class="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-start gap-3">
-          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span><%= @analysis_error %></span>
-        </div>
-      <% end %>
+      <div :if={@analysis_error} class="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-start gap-3">
+        <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span><%= @analysis_error %></span>
+      </div>
 
       <div class="mt-8 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
         <p class="text-blue-300 text-sm font-medium mb-2">Supported repositories</p>
@@ -350,19 +332,17 @@ defmodule PhoenixGcpDeployerWeb.DeployLive.Index do
     <div>
       <h2 class="text-xl font-bold text-white mb-2">Environment & GCP Project</h2>
 
-      <%= if @analysis_result do %>
-        <div class="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
-          <p class="text-green-400 text-sm font-medium mb-2">✓ Analysis complete</p>
-          <div class="grid grid-cols-2 gap-2 text-sm">
-            <.analysis_badge label="App" value={@analysis_result[:name] || "unknown"} />
-            <.analysis_badge label="Phoenix" value={@analysis_result[:phoenix_version] || "unknown"} />
-            <.analysis_badge label="Elixir" value={@analysis_result[:elixir_version] || "unknown"} />
-            <.analysis_badge label="LiveView" value={if @analysis_result[:has_live_view], do: "yes", else: "no"} />
-            <.analysis_badge label="Ecto" value={if @analysis_result[:has_ecto], do: "yes", else: "no"} />
-            <.analysis_badge label="Oban" value={if @analysis_result[:has_oban], do: "yes", else: "no"} />
-          </div>
+      <div :if={@analysis_result} class="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
+        <p class="text-green-400 text-sm font-medium mb-2">✓ Analysis complete</p>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <.analysis_badge label="App" value={@analysis_result[:name] || "unknown"} />
+          <.analysis_badge label="Phoenix" value={@analysis_result[:phoenix_version] || "unknown"} />
+          <.analysis_badge label="Elixir" value={@analysis_result[:elixir_version] || "unknown"} />
+          <.analysis_badge label="LiveView" value={if @analysis_result[:has_live_view], do: "yes", else: "no"} />
+          <.analysis_badge label="Ecto" value={if @analysis_result[:has_ecto], do: "yes", else: "no"} />
+          <.analysis_badge label="Oban" value={if @analysis_result[:has_oban], do: "yes", else: "no"} />
         </div>
-      <% end %>
+      </div>
 
       <form phx-change="update_config">
         <div class="space-y-5">
@@ -567,84 +547,72 @@ defmodule PhoenixGcpDeployerWeb.DeployLive.Index do
       <h2 class="text-xl font-bold text-white mb-6">Review & Generate</h2>
 
       <!-- Cost Estimate -->
-      <%= if @cost_estimate do %>
-        <div class="mb-6 p-5 rounded-xl bg-gradient-to-br from-orange-500/10 to-pink-500/10 border border-orange-500/20">
-          <h3 class="text-orange-400 font-semibold mb-3 flex items-center gap-2">
-            <span>💰</span> Estimated Monthly Cost
-          </h3>
-          <div class="grid grid-cols-3 gap-3 mb-4">
-            <.cost_row label="Cloud Run" value={@cost_estimate.cloud_run} />
-            <.cost_row label="Cloud SQL" value={@cost_estimate.cloud_sql} />
-            <.cost_row label="Security" value={@cost_estimate.cloud_armor + @cost_estimate.secret_manager} />
-          </div>
-          <div class="pt-3 border-t border-orange-500/20 flex justify-between items-center">
-            <span class="text-white font-semibold">Total</span>
-            <span class="text-2xl font-bold text-orange-400">$<%= @cost_estimate.total %>/mo</span>
-          </div>
+      <div :if={@cost_estimate} class="mb-6 p-5 rounded-xl bg-gradient-to-br from-orange-500/10 to-pink-500/10 border border-orange-500/20">
+        <h3 class="text-orange-400 font-semibold mb-3 flex items-center gap-2">
+          <span>💰</span> Estimated Monthly Cost
+        </h3>
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <.cost_row label="Cloud Run" value={@cost_estimate.cloud_run} />
+          <.cost_row label="Cloud SQL" value={@cost_estimate.cloud_sql} />
+          <.cost_row label="Security" value={@cost_estimate.cloud_armor + @cost_estimate.secret_manager} />
         </div>
-      <% end %>
+        <div class="pt-3 border-t border-orange-500/20 flex justify-between items-center">
+          <span class="text-white font-semibold">Total</span>
+          <span class="text-2xl font-bold text-orange-400">$<%= @cost_estimate.total %>/mo</span>
+        </div>
+      </div>
 
       <!-- Security Report -->
-      <%= if @security_report do %>
-        <div class="mb-6 p-5 rounded-xl bg-white/5 border border-white/10">
-          <h3 class="text-white font-semibold mb-3 flex items-center gap-2 justify-between">
-            <span class="flex items-center gap-2">
-              <span>🔒</span> Security Score
-            </span>
-            <span class={[
-              "text-lg font-bold",
-              if(@security_report.score >= 80, do: "text-green-400", else: if(@security_report.score >= 60, do: "text-yellow-400", else: "text-red-400"))
-            ]}>
-              <%= @security_report.score %>/100
-            </span>
-          </h3>
-          <%= for issue <- @security_report.errors do %>
-            <.security_issue issue={issue} />
-          <% end %>
-          <%= for issue <- @security_report.warnings do %>
-            <.security_issue issue={issue} />
-          <% end %>
-        </div>
-      <% end %>
+      <div :if={@security_report} class="mb-6 p-5 rounded-xl bg-white/5 border border-white/10">
+        <h3 class="text-white font-semibold mb-3 flex items-center gap-2 justify-between">
+          <span class="flex items-center gap-2">
+            <span>🔒</span> Security Score
+          </span>
+          <span class={[
+            "text-lg font-bold",
+            if(@security_report.score >= 80, do: "text-green-400", else: if(@security_report.score >= 60, do: "text-yellow-400", else: "text-red-400"))
+          ]}>
+            <%= @security_report.score %>/100
+          </span>
+        </h3>
+        <.security_issue :for={issue <- @security_report.errors} issue={issue} />
+        <.security_issue :for={issue <- @security_report.warnings} issue={issue} />
+      </div>
 
       <!-- Generate Button -->
-      <%= if is_nil(@generated_files) do %>
-        <button
-          phx-click="generate"
-          disabled={@generating}
-          class="w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-pink-600 text-white font-semibold text-lg hover:shadow-xl hover:shadow-orange-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
-        >
-          <%= if @generating do %>
-            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Generating files...
-          <% else %>
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Generate Deployment Package
-          <% end %>
-        </button>
-      <% else %>
-        <!-- Generated Files Preview -->
-        <div class="space-y-4">
-          <div class="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
-            <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p class="text-green-400 font-medium">Deployment package generated!</p>
-          </div>
+      <button
+        :if={is_nil(@generated_files)}
+        phx-click="generate"
+        disabled={@generating}
+        class="w-full py-4 rounded-xl bg-gradient-to-r from-orange-500 to-pink-600 text-white font-semibold text-lg hover:shadow-xl hover:shadow-orange-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+      >
+        <svg :if={@generating} class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span :if={@generating}>Generating files...</span>
+        <svg :if={!@generating} class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        <span :if={!@generating}>Generate Deployment Package</span>
+      </button>
 
-          <div class="space-y-2">
-            <.file_preview title="Dockerfile" content={@generated_files.dockerfile} />
-            <.file_preview title="terraform/main.tf" content={@generated_files.terraform_main} />
-            <.file_preview title="terraform/variables.tf" content={@generated_files.terraform_variables} />
-            <.file_preview title="cloudbuild.yaml" content={@generated_files.cloudbuild} />
-          </div>
+      <!-- Generated Files Preview -->
+      <div :if={@generated_files} class="space-y-4">
+        <div class="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
+          <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-green-400 font-medium">Deployment package generated!</p>
         </div>
-      <% end %>
+
+        <div class="space-y-2">
+          <.file_preview title="Dockerfile" content={@generated_files.dockerfile} />
+          <.file_preview title="terraform/main.tf" content={@generated_files.terraform_main} />
+          <.file_preview title="terraform/variables.tf" content={@generated_files.terraform_variables} />
+          <.file_preview title="cloudbuild.yaml" content={@generated_files.cloudbuild} />
+        </div>
+      </div>
     </div>
     """
   end
@@ -683,9 +651,7 @@ defmodule PhoenixGcpDeployerWeb.DeployLive.Index do
         <div class="flex-1">
           <div class="flex items-center gap-2">
             <p class="text-white text-sm font-medium"><%= @title %></p>
-            <%= if Map.get(assigns, :badge) do %>
-              <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 font-medium"><%= @badge %></span>
-            <% end %>
+            <span :if={Map.get(assigns, :badge)} class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 font-medium"><%= @badge %></span>
           </div>
           <p class="text-slate-500 text-xs mt-0.5"><%= @description %></p>
         </div>
@@ -722,9 +688,7 @@ defmodule PhoenixGcpDeployerWeb.DeployLive.Index do
       </span>
       <div>
         <p class="font-medium"><%= @issue.message %></p>
-        <%= if @issue.recommendation != "" do %>
-          <p class="opacity-75 mt-0.5"><%= @issue.recommendation %></p>
-        <% end %>
+        <p :if={@issue.recommendation != ""} class="opacity-75 mt-0.5"><%= @issue.recommendation %></p>
       </div>
     </div>
     """

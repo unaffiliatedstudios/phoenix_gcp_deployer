@@ -41,42 +41,38 @@ defmodule PhoenixGcpDeployerWeb.DeployLive.Show do
           </h1>
           <p class="text-slate-400 text-sm mb-6"><%= @project.github_url %></p>
 
-          <%= if length(@deployments) == 0 do %>
-            <div class="text-center py-12">
-              <p class="text-slate-400 mb-4">No deployments configured yet.</p>
-              <.link
-                navigate={~p"/deploy"}
-                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-pink-600 text-white text-sm font-medium"
-              >
-                Configure deployment
-              </.link>
-            </div>
-          <% else %>
-            <div class="space-y-3">
-              <%= for deployment <- @deployments do %>
-                <div class="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div class="flex justify-between items-start">
-                    <div>
-                      <p class="text-white font-medium"><%= deployment.name %></p>
-                      <p class="text-slate-500 text-xs mt-1">
-                        <%= deployment.environment %> · <%= deployment.gcp_region %>
-                      </p>
-                    </div>
-                    <span class={[
-                      "text-xs px-2 py-1 rounded-full font-medium",
-                      case deployment.status do
-                        "ready" -> "bg-green-500/20 text-green-400"
-                        "draft" -> "bg-slate-500/20 text-slate-400"
-                        _ -> "bg-orange-500/20 text-orange-400"
-                      end
-                    ]}>
-                      <%= deployment.status %>
-                    </span>
-                  </div>
+          <div :if={@deployments == []} class="text-center py-12">
+            <p class="text-slate-400 mb-4">No deployments configured yet.</p>
+            <.link
+              navigate={~p"/deploy"}
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-pink-600 text-white text-sm font-medium"
+            >
+              Configure deployment
+            </.link>
+          </div>
+
+          <div :if={@deployments != []} class="space-y-3">
+            <div :for={deployment <- @deployments} class="p-4 rounded-xl bg-white/5 border border-white/10">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-white font-medium"><%= deployment.name %></p>
+                  <p class="text-slate-500 text-xs mt-1">
+                    <%= deployment.environment %> · <%= deployment.gcp_region %>
+                  </p>
                 </div>
-              <% end %>
+                <span class={[
+                  "text-xs px-2 py-1 rounded-full font-medium",
+                  case deployment.status do
+                    "ready" -> "bg-green-500/20 text-green-400"
+                    "draft" -> "bg-slate-500/20 text-slate-400"
+                    _ -> "bg-orange-500/20 text-orange-400"
+                  end
+                ]}>
+                  <%= deployment.status %>
+                </span>
+              </div>
             </div>
-          <% end %>
+          </div>
         </div>
       </div>
     </div>
