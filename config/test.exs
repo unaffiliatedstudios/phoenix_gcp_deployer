@@ -1,5 +1,14 @@
 import Config
 
+# Configure your database
+config :phoenix_gcp_deployer, PhoenixGcpDeployer.Repo,
+  username: "postgres",
+  password: "P@$$W0RD",
+  hostname: "localhost",
+  database: "phoenix_gcp_deployer_test#{System.get_env("MIX_TEST_PARTITION")}",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: System.schedulers_online() * 2
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :phoenix_gcp_deployer, PhoenixGcpDeployerWeb.Endpoint,
@@ -22,3 +31,6 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Use mock GitHub client in tests
+config :phoenix_gcp_deployer, :github_client, PhoenixGcpDeployer.GithubAnalyzer.MockClient

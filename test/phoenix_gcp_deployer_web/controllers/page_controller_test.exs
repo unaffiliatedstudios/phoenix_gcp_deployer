@@ -1,8 +1,9 @@
 defmodule PhoenixGcpDeployerWeb.PageControllerTest do
   use PhoenixGcpDeployerWeb.ConnCase
 
-  test "GET /", %{conn: conn} do
+  test "GET / redirects to LiveView", %{conn: conn} do
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "Peace of mind from prototype to production"
+    # The root route is now a LiveView - it returns a 200 with the LiveView HTML
+    assert html_response(conn, 200) =~ "Phoenix GCP Deployer"
   end
 end

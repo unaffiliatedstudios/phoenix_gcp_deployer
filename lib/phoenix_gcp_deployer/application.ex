@@ -9,12 +9,11 @@ defmodule PhoenixGcpDeployer.Application do
   def start(_type, _args) do
     children = [
       PhoenixGcpDeployerWeb.Telemetry,
+      PhoenixGcpDeployer.Repo,
       {DNSCluster, query: Application.get_env(:phoenix_gcp_deployer, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PhoenixGcpDeployer.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: PhoenixGcpDeployer.Finch},
-      # Start a worker by calling: PhoenixGcpDeployer.Worker.start_link(arg)
-      # {PhoenixGcpDeployer.Worker, arg},
       # Start to serve requests, typically the last entry
       PhoenixGcpDeployerWeb.Endpoint
     ]

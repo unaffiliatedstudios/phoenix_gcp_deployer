@@ -1,0 +1,12 @@
+[
+  verbose: false,
+  quiet: false,
+  exit: :low,
+  format: :txt,
+  out: "",
+  threshold: :low,
+  skip: false,
+  router: "",
+  ignore: [],
+  ignore_files: []
+]

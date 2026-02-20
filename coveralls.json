@@ -1,0 +1,12 @@
+{
+  "coverage_options": {
+    "minimum_coverage": 90,
+    "treat_no_relevant_lines_as_covered": true
+  },
+  "skip_files": [
+    "lib/phoenix_gcp_deployer_web/telemetry.ex",
+    "lib/phoenix_gcp_deployer/mailer.ex",
+    "priv/",
+    "test/"
+  ]
+}
