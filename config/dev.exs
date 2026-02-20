@@ -1,5 +1,15 @@
 import Config
 
+# Configure your database
+config :phoenix_gcp_deployer, PhoenixGcpDeployer.Repo,
+  username: "postgres",
+  password: "P@$$W0RD",
+  hostname: "localhost",
+  database: "phoenix_gcp_deployer_dev",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

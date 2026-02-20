@@ -1,0 +1,71 @@
+variable "gcp_project_id" {
+  description = "The GCP project ID"
+  type        = string
+  default     = "<%= gcp_project_id %>"
+}
+
+variable "gcp_region" {
+  description = "The GCP region to deploy to"
+  type        = string
+  default     = "<%= gcp_region %>"
+}
+
+variable "gcp_zone" {
+  description = "The GCP zone for zonal resources"
+  type        = string
+  default     = "<%= gcp_zone %>"
+}
+
+variable "environment" {
+  description = "Deployment environment (production, staging, development)"
+  type        = string
+  default     = "<%= environment %>"
+}
+
+variable "app_name" {
+  description = "Application name"
+  type        = string
+  default     = "<%= app_name %>"
+}
+
+variable "db_tier" {
+  description = "Cloud SQL machine tier"
+  type        = string
+  default     = "<%= db_tier %>"
+}
+
+variable "db_disk_size_gb" {
+  description = "Cloud SQL disk size in GB"
+  type        = number
+  default     = <%= db_disk_size_gb %>
+}
+
+variable "min_instances" {
+  description = "Minimum number of Cloud Run instances"
+  type        = number
+  default     = <%= min_instances %>
+}
+
+variable "max_instances" {
+  description = "Maximum number of Cloud Run instances"
+  type        = number
+  default     = <%= max_instances %>
+}
+
+variable "memory_mb" {
+  description = "Memory limit per Cloud Run instance in MiB"
+  type        = number
+  default     = <%= memory_mb %>
+}
+
+variable "cpu_count" {
+  description = "CPU count per Cloud Run instance"
+  type        = number
+  default     = <%= cpu_count %>
+}
+
+variable "domain_name" {
+  description = "Custom domain name (leave empty to use Cloud Run URL)"
+  type        = string
+  default     = "<%= domain_name || "" %>"
+}

@@ -17,13 +17,10 @@ defmodule PhoenixGcpDeployerWeb.Router do
   scope "/", PhoenixGcpDeployerWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive, :index
+    live "/deploy", DeployLive.Index, :new
+    live "/deploy/:id", DeployLive.Show, :show
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", PhoenixGcpDeployerWeb do
-  #   pipe_through :api
-  # end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:phoenix_gcp_deployer, :dev_routes) do

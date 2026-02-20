@@ -8,6 +8,7 @@
 import Config
 
 config :phoenix_gcp_deployer,
+  ecto_repos: [PhoenixGcpDeployer.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
